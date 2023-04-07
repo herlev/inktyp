@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+    <_name>InkTeX</_name>
+    <id>herlev.inktex</id>
+    <effect>
+        <object-type>all</object-type>
+        <effects-menu>
+            <submenu _name="InkTeX"/>
+        </effects-menu>
+    </effect>
+    <script>
+        <command reldir="extensions" interpreter="python">inktex/inktex.py</command>
+    </script>
+</inkscape-extension>
