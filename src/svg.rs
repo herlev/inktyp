@@ -1,3 +1,4 @@
+use crate::xml;
 use std::process::Command;
 
 pub fn pdf2svg(pdf: &Vec<u8>) -> Result<String, ()> {
@@ -8,7 +9,7 @@ pub fn pdf2svg(pdf: &Vec<u8>) -> Result<String, ()> {
     .arg("main.svg")
     .current_dir(&dir)
     .status()
-    .unwrap();
+    .expect("pdf2svg not found");
   if status.success() {
     Ok(std::fs::read_to_string(dir.path().join("main.svg")).expect("Couldn't read svg file"))
   } else {
@@ -18,9 +19,7 @@ pub fn pdf2svg(pdf: &Vec<u8>) -> Result<String, ()> {
 
 // This function assummes the svg is generated using pdf2svg
 pub fn group_and_add_desc(svg: &str, desc: &str) -> String {
-  // TODO: escape xml characters in equation
-  // https://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents
-  // let template = ("<g><g>", format!("<desc>{desc}</desc></g></g>"));
+  let desc = xml::escape(desc);
   let template = ("", format!("<desc>{desc}</desc>"));
   let mut lines: Vec<_> = svg.lines().collect();
   let i = lines.iter().position(|&l| l == "</defs>").unwrap();

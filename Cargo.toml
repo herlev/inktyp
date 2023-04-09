@@ -1,5 +1,5 @@
 [package]
-name = "inktex"
+name = "inktyp"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,6 +8,11 @@ edition = "2021"
 [dependencies]
 eframe = "0.21.3"
 egui = "0.21.0"
-egui_extras = { version = "0.21.0", features = ["svg"] }
-regex = "1.7.1"
-tempfile = "3.3.0"
+egui_extras = { version = "0.21.0", features = ["svg", "image"] }
+regex = "1.7.3"
+bytemuck = "1.13.1"
+comemo = "0.2.0"
+image = "0.24.6"
+tempfile = "3.5.0"
+typst = { git = "https://github.com/typst/typst" }
+typst-library = { git = "https://github.com/typst/typst" }

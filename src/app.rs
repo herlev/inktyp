@@ -1,74 +1,66 @@
-use std::{sync::mpsc, thread};
+use egui_extras::RetainedImage;
 
-use crate::{latex, mpsc_receiver::Receiver, svg};
+use crate::svg;
+use crate::typst_math::TypstMath;
 
-pub struct MyApp {
-  latex: String,
-  svg_image: egui_extras::RetainedImage,
-  eq_sender: mpsc::Sender<String>,
-  svg_receiver: mpsc::Receiver<String>,
+pub struct InkTyp {
+  equation: String,
+  image: egui_extras::RetainedImage,
+  tm: TypstMath,
 }
 
-const MINIMAL_SVG: &str = "<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>";
+pub const WINDOW_SIZE: f64 = 300.;
 
-impl MyApp {
-  pub fn new(cc: &eframe::CreationContext, latex: String) -> Self {
-    let (tx, rx) = mpsc::channel();
-    let rx = Receiver::<String>::new(rx);
-    let (tx2, rx2) = mpsc::channel();
-    let ctx = cc.egui_ctx.clone();
-    ctx.set_visuals(egui::Visuals::light());
-    thread::spawn(move || {
-      while let Ok(eq) = rx.latest_blocking() {
-        if let Ok(svg) = latex::equation_to_svg(&eq) {
-          tx2.send(svg).unwrap();
-          ctx.request_repaint();
-        }
-      }
-    });
-    tx.send(latex.clone()).unwrap();
-    Self {
-      eq_sender: tx,
-      svg_receiver: rx2,
-      latex,
-      svg_image: egui_extras::image::RetainedImage::from_svg_str("", MINIMAL_SVG).unwrap(),
+impl InkTyp {
+  pub fn new(cc: &eframe::CreationContext, equation: String) -> Self {
+    cc.egui_ctx.set_visuals(egui::Visuals::light());
+    let mut tm = TypstMath::new();
+    let image = tm
+      .equation_to_png(&equation, WINDOW_SIZE)
+      .unwrap_or(RetainedImage::from_color_image(
+        "",
+        egui::ColorImage::from_rgba_unmultiplied([0, 0], &[]),
+      ));
+    Self { equation, image, tm }
+  }
+  fn update_img(&mut self) {
+    if let Some(img) = self.tm.equation_to_png(&self.equation, WINDOW_SIZE) {
+      self.image = img;
     }
   }
 }
 
-impl eframe::App for MyApp {
-  fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+impl eframe::App for InkTyp {
+  fn on_close_event(&mut self) -> bool {
+    // Window closed by user
+    std::process::exit(1);
+  }
+
+  fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
     egui::CentralPanel::default().show(ctx, |ui| {
       ui.horizontal(|ui| {
-        let input = ui.text_edit_singleline(&mut self.latex);
+        let input = ui.text_edit_singleline(&mut self.equation);
         if !input.has_focus() {
           input.request_focus();
         }
 
         if input.changed {
-          self.eq_sender.send(self.latex.clone()).unwrap();
+          self.update_img();
         }
 
-        if let Ok(svg) = self.svg_receiver.try_recv() {
-          self.svg_image = egui_extras::image::RetainedImage::from_svg_bytes_with_size(
-            "test",
-            svg.as_bytes(),
-            egui_extras::image::FitTo::Width(300),
-          )
-          .unwrap();
-        }
-        if ui.input(|i| i.key_pressed(egui::Key::Enter)) && !self.latex.is_empty() {
-          let svg = latex::equation_to_svg(&self.latex).unwrap();
-          let svg = svg::group_and_add_desc(&svg, &format!("latex: {}", self.latex));
+        if ui.input(|i| i.key_pressed(egui::Key::Enter)) && !self.equation.is_empty() {
+          let svg = String::from_utf8(self.tm.equation_to_svg(&self.equation).unwrap()).unwrap();
+          let svg = svg::group_and_add_desc(&svg, &format!("typst: {}", self.equation));
           print!("{svg}");
-          frame.close();
+          std::process::exit(0);
         }
         if ui.input(|i| i.key_pressed(egui::Key::Escape)) {
-          frame.close();
           std::process::exit(1);
         }
       });
-      self.svg_image.show(ui);
+      ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
+        self.image.show(ui);
+      })
     });
   }
 }

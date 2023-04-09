@@ -1,12 +1,11 @@
-use crate::app::MyApp;
+use crate::app::InkTyp;
 use eframe::egui;
 use egui::Vec2;
 
 mod app;
-mod clipboard;
-mod latex;
-mod mpsc_receiver;
 mod svg;
+mod typst_math;
+mod xml;
 
 fn run_app() {
   let mut args = std::env::args();
@@ -23,13 +22,16 @@ fn run_app() {
 
   let options = eframe::NativeOptions {
     always_on_top: true,
-    resizable: false,
     decorated: false,
-    initial_window_size: Some(Vec2 { x: 300., y: 300. }),
+    initial_window_size: Some(Vec2 {
+      x: app::WINDOW_SIZE as f32,
+      y: app::WINDOW_SIZE as f32,
+    }),
+    resizable: false,
     ..Default::default()
   };
 
-  eframe::run_native("inktex", options, Box::new(|cc| Box::new(MyApp::new(cc, equation)))).unwrap();
+  eframe::run_native("inktyp", options, Box::new(|cc| Box::new(InkTyp::new(cc, equation)))).unwrap();
 }
 
 fn main() {

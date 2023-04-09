@@ -10,17 +10,14 @@ import subprocess
 # inkex.utils.errormsg(sys.executable)
 # inkex.utils.errormsg(sys.path)
 
-# TODO: convert strokes to path to allow for scaling and recoloring?
-
-
-# Extracts the equation from the svg description starting with "latex: "
-def extract_latex(svg):
+# Extracts the equation from the svg description starting with "typst: "
+def extract_equation(svg):
     if svg.tag_name != "g":
         return None
     for c in svg:
         if c.tag_name == "desc":
             desc = c.text
-            prefix = "latex: "
+            prefix = "typst: "
             if desc.startswith(prefix):
                 return desc.removeprefix(prefix)
     return None
@@ -35,7 +32,6 @@ def prepare_svg(svg_string, scale, transform, svg_ids):
     # center svg in viewport
     if transform is not None:
         svg.transform = transform
-    # svg.attrib["inkex_latex"] = "1+1"
     scale = convert_unit("1pt", "px") / scale
     for child in svg:
         if isinstance(child, inkex.ShapeElement):
@@ -48,8 +44,8 @@ def prepare_svg(svg_string, scale, transform, svg_ids):
     return svg
 
 
-# Generates a new svg from a latex eqution
-class InktexGenerate(inkex.GenerateExtension):
+# Generates a new svg from a typst eqution
+class InktypGenerate(inkex.GenerateExtension):
     def svg(self, svg_string):
         self.svg_string = svg_string
         return self
@@ -58,21 +54,21 @@ class InktexGenerate(inkex.GenerateExtension):
         return prepare_svg(self.svg_string, self.svg.scale, self.container_transform(), self.svg.get_ids())
 
 
-class Inktex(inkex.EffectExtension):
+class Inktyp(inkex.EffectExtension):
     def effect(self):
         num_selected = len(self.svg.selection)
         if num_selected == 0:
-            p = subprocess.run(["inktex", "new"], stdout=subprocess.PIPE)
+            p = subprocess.run(["inktyp", "new"], stdout=subprocess.PIPE)
             if p.returncode == 0:
-                InktexGenerate().svg(p.stdout).run()
+                InktypGenerate().svg(p.stdout).run()
             return
         if num_selected != 1:
             return
         selection = self.svg.selection[0]
-        latex = extract_latex(selection)
-        if latex is None:
+        equation = extract_equation(selection)
+        if equation is None:
             return
-        p = subprocess.run(["inktex", "edit", f"{latex}"], stdout=subprocess.PIPE)
+        p = subprocess.run(["inktyp", "edit", f"{equation}"], stdout=subprocess.PIPE)
         if p.returncode != 0:
             return
         svg = prepare_svg(p.stdout, self.svg.scale, None, self.svg.get_ids())
@@ -84,4 +80,4 @@ class Inktex(inkex.EffectExtension):
 
 
 if __name__ == '__main__':
-    Inktex().run()
+    Inktyp().run()
