@@ -18,12 +18,10 @@ pub fn pdf2svg(pdf: &Vec<u8>) -> Result<String, ()> {
 }
 
 // This function assummes the svg is generated using pdf2svg
-pub fn group_and_add_desc(svg: &str, desc: &str) -> String {
+pub fn add_description(svg: &str, desc: &str) -> String {
   let desc = xml::escape(desc);
-  let template = ("", format!("<desc>{desc}</desc>"));
+  let template = format!("<desc>{desc}</desc>");
   let mut lines: Vec<_> = svg.lines().collect();
-  let i = lines.iter().position(|&l| l == "</defs>").unwrap();
-  lines.insert(i + 1, template.0);
-  lines.insert(lines.len() - 1, &template.1);
+  lines.insert(lines.len() - 1, &template);
   lines.join("\n")
 }

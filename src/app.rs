@@ -50,7 +50,7 @@ impl eframe::App for InkTyp {
 
         if ui.input(|i| i.key_pressed(egui::Key::Enter)) && !self.equation.is_empty() {
           let svg = String::from_utf8(self.tm.equation_to_svg(&self.equation).unwrap()).unwrap();
-          let svg = svg::group_and_add_desc(&svg, &format!("typst: {}", self.equation));
+          let svg = svg::add_description(&svg, &format!("typst: {}", self.equation));
           print!("{svg}");
           std::process::exit(0);
         }
