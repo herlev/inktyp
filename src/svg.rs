@@ -1,7 +1,7 @@
 use crate::xml;
 use std::process::Command;
 
-pub fn pdf2svg(pdf: &Vec<u8>) -> Result<String, ()> {
+pub fn _pdf2svg(pdf: &Vec<u8>) -> Result<String, ()> {
   let dir = tempfile::tempdir().expect("Couldn't create temporary directory");
   std::fs::write(dir.path().join("main.pdf"), pdf).expect("Couldn't write pdf file");
   let status = Command::new("pdf2svg")
