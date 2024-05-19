@@ -31,11 +31,6 @@ impl InkTyp {
 }
 
 impl eframe::App for InkTyp {
-  fn on_close_event(&mut self) -> bool {
-    // Window closed by user
-    std::process::exit(1);
-  }
-
   fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
     egui::CentralPanel::default().show(ctx, |ui| {
       ui.horizontal(|ui| {

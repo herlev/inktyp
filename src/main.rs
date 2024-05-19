@@ -1,6 +1,6 @@
 use crate::app::InkTyp;
 use eframe::egui;
-use egui::Vec2;
+use egui::{Vec2, ViewportBuilder};
 
 mod app;
 mod svg;
@@ -21,13 +21,14 @@ fn run_app() {
   };
 
   let options = eframe::NativeOptions {
-    always_on_top: true,
-    decorated: false,
-    initial_window_size: Some(Vec2 {
-      x: app::WINDOW_SIZE as f32,
-      y: app::WINDOW_SIZE as f32,
-    }),
-    resizable: false,
+    viewport: ViewportBuilder::default()
+      .with_always_on_top()
+      .with_decorations(false)
+      .with_inner_size(Vec2 {
+        x: app::WINDOW_SIZE as f32,
+        y: app::WINDOW_SIZE as f32,
+      })
+      .with_resizable(false),
     ..Default::default()
   };
 
