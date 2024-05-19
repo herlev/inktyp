@@ -8,12 +8,8 @@ edition = "2021"
 [dependencies]
 eframe = "0.27.2"
 egui = "0.27.2"
-egui_extras = { version = "0.27.2", features = ["svg", "image"] }
-regex = "1.10.4"
-bytemuck = "1.16.0"
-comemo = "0.4.0"
-image = "0.24.9"
 tempfile = "3.10.1"
+comemo = "0.4.0"
 typst = "0.11.1"
 typst-svg = "0.11.1"
 typst-render = "0.11.1"

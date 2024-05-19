@@ -1,11 +1,14 @@
-use egui_extras::RetainedImage;
+use egui::load::SizedTexture;
+use egui::ImageSource::Texture;
+use egui::TextureHandle;
+use egui::TextureOptions;
 
 use crate::svg;
 use crate::typst_math::TypstMath;
 
 pub struct InkTyp {
   equation: String,
-  image: egui_extras::RetainedImage,
+  texture_handle: TextureHandle,
   tm: TypstMath,
 }
 
@@ -17,15 +20,18 @@ impl InkTyp {
     let mut tm = TypstMath::new();
     let image = tm
       .equation_to_png(&equation, WINDOW_SIZE)
-      .unwrap_or(RetainedImage::from_color_image(
-        "",
-        egui::ColorImage::from_rgba_unmultiplied([0, 0], &[]),
-      ));
-    Self { equation, image, tm }
+      .unwrap_or(egui::ColorImage::from_rgba_unmultiplied([0, 0], &[]));
+    let texture_handle = cc.egui_ctx.load_texture("", image, TextureOptions::default());
+
+    Self {
+      equation,
+      texture_handle,
+      tm,
+    }
   }
   fn update_img(&mut self) {
     if let Some(img) = self.tm.equation_to_png(&self.equation, WINDOW_SIZE) {
-      self.image = img;
+      self.texture_handle.set(img, TextureOptions::default());
     }
   }
 }
@@ -54,7 +60,7 @@ impl eframe::App for InkTyp {
         }
       });
       ui.with_layout(egui::Layout::centered_and_justified(egui::Direction::TopDown), |ui| {
-        self.image.show(ui);
+        ui.image(Texture(SizedTexture::from_handle(&self.texture_handle)));
       })
     });
   }

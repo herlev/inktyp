@@ -1,5 +1,5 @@
 use comemo::Prehashed;
-use egui_extras::RetainedImage;
+use egui::ColorImage;
 use typst::foundations::Bytes;
 use typst::model::Document;
 use typst::text::{Font, FontBook};
@@ -58,14 +58,12 @@ fn source_from_equation(eq: &str) -> Source {
   Source::detached(source)
 }
 
-fn document_to_png(document: Document, max_width_or_height: f64) -> RetainedImage {
+fn document_to_png(document: Document, max_width_or_height: f64) -> ColorImage {
   let frame = &document.pages[0].frame;
   let size = frame.size();
   let pixels_per_pt = max_width_or_height / size.x.to_pt().max(size.y.to_pt());
   let pixmap = typst_render::render(frame, pixels_per_pt as f32, Color::BLACK.with_alpha(0.));
-  let img =
-    egui::ColorImage::from_rgba_unmultiplied([pixmap.width() as usize, pixmap.height() as usize], pixmap.data());
-  RetainedImage::from_color_image("", img)
+  egui::ColorImage::from_rgba_unmultiplied([pixmap.width() as usize, pixmap.height() as usize], pixmap.data())
 }
 
 fn document_to_svg(document: Document) -> Vec<u8> {
@@ -101,7 +99,7 @@ impl TypstMath {
       }
     }
   }
-  pub fn equation_to_png(&mut self, eq: &str, max_width_or_height: f64) -> Option<RetainedImage> {
+  pub fn equation_to_png(&mut self, eq: &str, max_width_or_height: f64) -> Option<ColorImage> {
     self.world.source = source_from_equation(eq);
     let mut tracer = Tracer::default();
     match typst::compile(&self.world, &mut tracer) {
