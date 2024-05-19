@@ -2059,7 +2059,6 @@ dependencies = [
  "comemo",
  "eframe",
  "egui",
- "tempfile",
  "typst",
  "typst-render",
  "typst-svg",
