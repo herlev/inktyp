@@ -20,7 +20,3 @@ cargo install --path .
 In Inkscape go to `Edit > Preferences > Interface > Keyboard` and set a shortcut for inktyp under `Extensions`.
 
 ![](img/inkscape-preferences.png)
-
-## Requirements
-
-- pdf2svg
